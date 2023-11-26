@@ -14,6 +14,7 @@ import { StateHandlerRoom } from "./rooms/02-state-handler";
 import { AuthRoom } from "./rooms/03-auth";
 import { ReconnectionRoom } from './rooms/04-reconnection';
 import { CustomLobbyRoom } from './rooms/07-custom-lobby-room';
+import { TowelRoom } from "./rooms/towel_server";
 
 export default config({
     options: {
@@ -42,6 +43,9 @@ export default config({
         gameServer.define("state_handler", StateHandlerRoom)
             .enableRealtimeListing();
 
+        gameServer.define("towel", TowelRoom)
+            .enableRealtimeListing();
+
         // Define "auth" room
         gameServer.define("auth", AuthRoom)
             .enableRealtimeListing();
@@ -61,8 +65,12 @@ export default config({
     },
 
     initializeExpress: (app) => {
-        app.use('/', serveIndex(path.join(__dirname, "static"), {'icons': true}))
-        app.use('/', express.static(path.join(__dirname, "static")));
+        app.get('/', (req, res) => {
+            res.sendFile(path.join(__dirname, "Static", 'towel_page.html'));
+        });
+
+        app.use('/static', serveIndex(path.join(__dirname, "static"), {'icons': true}))
+        app.use('/static', express.static(path.join(__dirname, "static")));
 
         // (optional) client playground
         app.use('/playground', playground);
