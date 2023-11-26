@@ -37,22 +37,32 @@ client.joinOrCreate(ROOM_NAME).then(room_instance => {
         console.log(message);
     });
 
-    window.addEventListener("keydown", function (e) {
-        if (e.which === 38) {
-            up();
-
-        } else if (e.which === 39) {
-            right();
-
-        } else if (e.which === 40) {
-            down();
-
-        } else if (e.which === 37) {
-            left();
-        }
-    });
+    document.addEventListener("keydown", e => keyEvent(e));
+    document.addEventListener("keyup", e => keyEvent(e));
 
 });
+
+
+const keyspressed = {};
+function keyEvent(e) {
+    if (e.type === "keydown") {
+        keyspressed[e.key] = 1;
+    } else if (e.type === "keyup") {
+        keyspressed[e.key] = 0;
+    }
+}
+
+function processInputs (e) {
+    if (keyspressed['ArrowUp'] || keyspressed['w']) {
+        up();
+    } else if (keyspressed['ArrowRight'] || keyspressed['d']) {
+        right();
+    } else if (keyspressed['ArrowDown'] || keyspressed['s']) {
+        down();
+    } else if (keyspressed['ArrowLeft'] || keyspressed['a']) {
+        left();
+    }
+}
 
 function up () {
     room.send("move", { y: -1 });
@@ -70,19 +80,8 @@ function left () {
     room.send("move", { x: -1 })
 }
 
-document.getElementById('up').addEventListener('click', function() {
-    console.log('btn', up);
-    up();
-});
-document.getElementById('right').addEventListener('click', function() {
-    console.log('btn', right);
-    right();
-});
-document.getElementById('down').addEventListener('click', function() {
-    console.log('btn', down);
-    down();
-});
-document.getElementById('left').addEventListener('click', function() {
-    console.log('btn', left);
-    left();
-});
+
+const FPS = 60;
+window.setInterval(function () {
+    processInputs();
+}, 1000 / FPS);
