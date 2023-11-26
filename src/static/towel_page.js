@@ -1,4 +1,5 @@
 import { ZCanvas } from "./ZCanvas.js";
+import { Renderer } from "./renderer.js";
 
 const FPS = 60;
 const FRAME_WIDTH = 1200;
@@ -6,6 +7,7 @@ const FRAME_HEIGHT = 800;
 const FRAME_LAYERS = 3;
 
 const zc = new ZCanvas(document.body, FRAME_WIDTH, FRAME_HEIGHT, FRAME_LAYERS);
+const render = new Renderer(zc.getContext(0, 'webgl'))
 
 var host = window.document.location.host.replace(/:.*/, '');
 
@@ -64,8 +66,7 @@ function processInputs() {
 function drawDisplay(state) {
     // background
     const bkg_ctx = zc.getContext(0, 'webgl');
-    // bkg_ctx.clearColor(0.2, 0, 0, 0);
-    // bkg_ctx.clear(bkg_ctx.COLOR_BUFFER_BIT);
+    render.update();
 
     // players
     const player_ctx = zc.getContext(1, '2d');

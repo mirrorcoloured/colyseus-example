@@ -57,6 +57,7 @@ export class ZCanvas {
             
             this.contexts[layer_num] = ctx;
             this.context_types[layer_num] = type;
+            return ctx;
         } else {
             console.assert(this.context_types[layer_num] === type, `Context type must match, ${type} != ${this.context_types[layer_num]}`);
             return this.contexts[layer_num];

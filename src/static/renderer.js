@@ -100,11 +100,12 @@ export class Renderer {
         console.debug("[Render]","DRAW END");
     };
 
-    constructor(canvas) {
-        this.glCTX = canvas.getContext('webgl');
-        this.width = canvas.width;
-        this.height = canvas.height;
+    constructor(context) {
+        this.glCTX = context;
+        this.width = context.width;
+        this.height = context.height;
         this.vertexShader = this.createShader(this.glCTX, this.glCTX.VERTEX_SHADER, this.vertexShaderSource);
         this.fragmentShader = this.createShader(this.glCTX, this.glCTX.FRAGMENT_SHADER, this.fragmentShaderSource);
+        console.debug("[Render]","CONSTRUCTOR",this.width,this.height,this.vertexShader,this.fragmentShader);
     }
 };
