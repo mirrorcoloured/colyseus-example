@@ -1,3 +1,12 @@
+import { ZCanvas } from "./ZCanvas.js";
+
+const FPS = 60;
+const FRAME_WIDTH = 1200;
+const FRAME_HEIGHT = 800;
+const FRAME_LAYERS = 3;
+
+const zc = new ZCanvas(document.body, FRAME_WIDTH, FRAME_HEIGHT, FRAME_LAYERS);
+
 var host = window.document.location.host.replace(/:.*/, '');
 
 var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : ''));
@@ -6,30 +15,13 @@ const ROOM_NAME = "towel"
 client.joinOrCreate(ROOM_NAME).then(room_instance => {
     room = room_instance
 
-    var players = {};
-    var colors = ['red', 'green', 'yellow', 'blue', 'cyan', 'magenta'];
 
-    // listen to patches coming from the server
     room.state.players.onAdd(function (player, sessionId) {
-        var dom = document.createElement("div");
-        dom.className = "player";
-        dom.style.left = player.x + "px";
-        dom.style.top = player.y + "px";
-        dom.style.background = colors[Math.floor(Math.random() * colors.length)];
-        dom.innerText = "Player " + sessionId;
-
-        player.onChange(function (changes) {
-            dom.style.left = player.x + "px";
-            dom.style.top = player.y + "px";
-        });
-
-        players[sessionId] = dom;
-        document.body.appendChild(dom);
+        
     });
 
     room.state.players.onRemove(function (player, sessionId) {
-        document.body.removeChild(players[sessionId]);
-        delete players[sessionId];
+        
     });
 
 
@@ -40,10 +32,15 @@ client.joinOrCreate(ROOM_NAME).then(room_instance => {
     document.addEventListener("keydown", e => keyEvent(e));
     document.addEventListener("keyup", e => keyEvent(e));
 
+    window.setInterval(function () {
+        processInputs();
+        drawDisplay(room.state);
+    }, 1000 / FPS);
 });
 
 
 const keyspressed = {};
+
 function keyEvent(e) {
     if (e.type === "keydown") {
         keyspressed[e.key] = 1;
@@ -52,36 +49,48 @@ function keyEvent(e) {
     }
 }
 
-function processInputs (e) {
+function processInputs() {
     if (keyspressed['ArrowUp'] || keyspressed['w']) {
-        up();
+        room.send("move", { y: -1 });
     } else if (keyspressed['ArrowRight'] || keyspressed['d']) {
-        right();
+        room.send("move", { x: 1 });
     } else if (keyspressed['ArrowDown'] || keyspressed['s']) {
-        down();
+        room.send("move", { y: 1 })
     } else if (keyspressed['ArrowLeft'] || keyspressed['a']) {
-        left();
+        room.send("move", { x: -1 })
     }
 }
 
-function up () {
-    room.send("move", { y: -1 });
+function drawDisplay(state) {
+    // background
+    const bkg_ctx = zc.getContext(0, 'webgl');
+    // bkg_ctx.clearColor(0.2, 0, 0, 0);
+    // bkg_ctx.clear(bkg_ctx.COLOR_BUFFER_BIT);
+
+    // players
+    const player_ctx = zc.getContext(1, '2d');
+    player_ctx.clear();
+    state.players.forEach((player_info, player_name) => {
+        drawPlayer(player_name, player_info, player_ctx);
+    });
+
+    // ui
+    const ui_ctx = zc.getContext(2, '2d');
+    ui_ctx.clear();
+    ui_ctx.fillStyle = "black";
+    ui_ctx.rect(5, 5, 30, 10);
+    ui_ctx.fill();
 }
 
-function right () {
-    room.send("move", { x: 1 });
+function drawPlayer(player_name, player_info, ctx) {
+    // circle
+    ctx.fillStyle = "teal";
+    ctx.beginPath();
+    ctx.arc(player_info.x, player_info.y, 50, 0, 2 * Math.PI);
+    ctx.fill();
+    
+    // label
+    ctx.fillStyle = "black";
+    ctx.font = "16px Arial";
+    ctx.fillText(player_name, player_info.x - 45, player_info.y + 5);
 }
-
-function down () {
-    room.send("move", { y: 1 })
-}
-
-function left () {
-    room.send("move", { x: -1 })
-}
-
-
-const FPS = 60;
-window.setInterval(function () {
-    processInputs();
-}, 1000 / FPS);
