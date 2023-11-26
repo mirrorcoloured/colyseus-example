@@ -25,6 +25,8 @@ export class ZCanvas {
         this.class = classes;
 
         this.canvases = [];
+        this.contexts = Array(num_layers).fill(null);
+        this.context_types = Array(num_layers).fill(null);
         for (let i=0; i<this.num_layers; i++) {
             const canvas = document.createElement('canvas');
             canvas.id = `${this.id_prefix}${i}`;
@@ -42,15 +44,22 @@ export class ZCanvas {
     }
 
     getContext(layer_num, type) {
-        const ctx = this.canvases[layer_num].getContext(type);
-        
-        // add simple clear function to context
-        if (type === "2d") {
-            ctx.clear = function() {
-                ctx.clearRect(0, 0, this.width, this.height);
-            }.bind(this);
+        if (this.contexts[layer_num] === null) {
+            console.assert(['2d', 'webgl'].indexOf(type) > -1, `Context type must be '2d' or 'webgl', not '${type}'`)
+            const ctx = this.canvases[layer_num].getContext(type);
+            
+            // add simple clear function to context
+            if (type === "2d") {
+                ctx.clear = function() {
+                    ctx.clearRect(0, 0, this.width, this.height);
+                }.bind(this);
+            }
+            
+            this.contexts[layer_num] = ctx;
+            this.context_types[layer_num] = type;
+        } else {
+            console.assert(this.context_types[layer_num] === type, `Context type must match, ${type} != ${this.context_types[layer_num]}`);
+            return this.contexts[layer_num];
         }
-
-        return ctx;
     }
 }
