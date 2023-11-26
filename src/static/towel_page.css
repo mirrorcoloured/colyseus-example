@@ -1,4 +1,7 @@
-body { font-family: Tahoma, Geneva, sans-serif; }
+body {
+    font-family: Tahoma, Geneva, sans-serif;
+    background-color: black;
+}
 
 .player {
     width: 100px;
