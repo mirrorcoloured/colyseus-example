@@ -53,7 +53,7 @@ function animationLoop(timeExec,state,timeLastExec) {
     } else {
         console.debug('No Update Required (FPS)')
         console.groupEnd();
-        
+
         requestAnimationFrame((timeAnim) => animationLoop(timeAnim,state,timeLastExec));
     }
 }
@@ -84,7 +84,7 @@ function drawDisplay(state,timeDelta) {
     // background
     const bkg_ctx = zc.getContext(0, 'webgl');
     console.debug("[Draw]",`${Number(timeDelta).toFixed(2)}ms`)
-    render.update(timeDelta);
+    render.paint(timeDelta);
 
     // players
     const player_ctx = zc.getContext(1, '2d');

@@ -1,24 +1,33 @@
 export class Renderer {
 
     glCTX;
+
     vertexShader;
     fragmentShader;
-    width;
-    height;
-    vertexShaderSource2 = `
-    attribute vec4 aVertexPosition;
-    void main(void) {
-      gl_Position = aVertexPosition;
-    }`;
-    vertexShaderSource =
-    'attribute vec3 coordinates;' +
-    'void main(void) {' +
-       ' gl_Position = vec4(coordinates, 1.0);' +
-    '}';
+    shaderProgram;
+    verticies = new Float32Array([
+      0.00, 0.10,
+     -0.05, 0.00,
+      0.05, 0.00,
+
+     -0.05, 0.00,
+     -0.10,-0.10,
+      0.00,-0.10,
+
+      0.05, 0.00,
+      0.00,-0.10,
+      0.10,-0.10,
+    ]);
+
+    vertexShaderSource =`
+      attribute vec3 coordinates;
+      void main(void) {
+        gl_Position = vec4(coordinates, 1.0);
+      }`;
     fragmentShaderSource = `
-    void main() {
-      gl_FragColor = vec4(0.940,0.845,0.122,1.0);
-    }`;
+      void main() {
+        gl_FragColor = vec4(0.940,0.845,0.122,1.0);
+      }`;
 
     // Create shaders
     buildShader(glCTX, type, source) {
@@ -27,10 +36,11 @@ export class Renderer {
         glCTX.compileShader(shader);
 
         if (!glCTX.getShaderParameter(shader, glCTX.COMPILE_STATUS)) {
-          console.error("[Render]","Shader compilation failed:",glCTX.getShaderInfoLog(shader));
+          console.error("Shader compilation failed:",glCTX.getShaderInfoLog(shader));
           glCTX.deleteShader(shader);
           return null;
         };
+        console.info(`Shader compile successful (${type})`);
         return shader;
       };
     
@@ -41,68 +51,44 @@ export class Renderer {
       glCTX.linkProgram(program);
 
       if (!glCTX.getProgramParameter(program, glCTX.LINK_STATUS)) {
-        console.error("[Render]","Create shader program failed:",glCTX.getProgramInfoLog(program));
+        console.error("Create shader program failed:",glCTX.getProgramInfoLog(program));
         return null;
       };
+      console.info("Program build successful");
       return program;
     }
 
-    update(timeDelta) {
-        console.debug("[Render]","DRAW BEGIN");
-
-        const shaderProgram = this.buildProgram(this.glCTX,this.vertexShader,this.fragmentShader)
-        
-        // Define triangle geometry
-        const offset = 0.05
-        const verticies = new Float32Array([
-          0.00, 0.10,
-         -0.05, 0.00,
-          0.05, 0.00,
-
-         -0.05, 0.00,
-         -0.10,-0.10,
-          0.00,-0.10,
-
-          0.05, 0.00,
-          0.00,-0.10,
-          0.10,-0.10,
-        ]);
-
-        // Create buffer and store geometry data
-        console.debug("[Render]","GEOMETRY");
-        const vertexBuffer = this.glCTX.createBuffer();
-        this.glCTX.bindBuffer(this.glCTX.ARRAY_BUFFER, vertexBuffer);
-        this.glCTX.bufferData(this.glCTX.ARRAY_BUFFER, verticies, this.glCTX.STATIC_DRAW);
-
-        // Get attribute location and enable it
-        console.debug("[Render]","ENABLE ATTRIB");
-        //const vertPosition = this.glCTX.getAttribLocation(shaderProgram, 'aVertexPosition');
-        const vertPosition = this.glCTX.getAttribLocation(shaderProgram, 'coordinates');
-        this.glCTX.vertexAttribPointer(vertPosition, 2,this.glCTX.FLOAT, false, 0, 0);
-        this.glCTX.enableVertexAttribArray(vertPosition);
-
-        // Set resolution uniform
-        console.debug("[Render]","ENABLE PROGRAM");
-        this.glCTX.useProgram(shaderProgram);
+    paint(timeDelta) {
 
         // Clear the canvas
-        console.debug("[Render]","CLEAR");
-        this.glCTX.clearColor(64/255, 64/255, 64/255, 1.0);
         this.glCTX.clear(this.glCTX.COLOR_BUFFER_BIT);
 
         // Draw Triangle
-        console.debug("[Render]","TRIANGLE");
         this.glCTX.drawArrays(this.glCTX.TRIANGLES, 0, 9);
-
-        console.debug("[Render]","DRAW END");
     };
 
     constructor(context) {
         this.glCTX = context;
-        this.width = context.canvas.width;
-        this.height = context.canvas.height;
+
+        //canvas maintenance settings
+        this.glCTX.clearColor(64/255, 64/255, 64/255, 1.0); //set gr(a|e)y
+
+        //Compile and assign shaders and program
         this.vertexShader = this.buildShader(this.glCTX, this.glCTX.VERTEX_SHADER, this.vertexShaderSource);
         this.fragmentShader = this.buildShader(this.glCTX, this.glCTX.FRAGMENT_SHADER, this.fragmentShaderSource);
+        this.shaderProgram = this.buildProgram(this.glCTX,this.vertexShader,this.fragmentShader)
+        this.glCTX.useProgram(this.shaderProgram);
+
+        //VBO our verticies
+        const vertexBuffer = this.glCTX.createBuffer();
+        this.glCTX.bindBuffer(this.glCTX.ARRAY_BUFFER, vertexBuffer);
+        this.glCTX.bufferData(this.glCTX.ARRAY_BUFFER, this.verticies, this.glCTX.STATIC_DRAW);
+
+        //Setup attributes / 'expose' attirbutes for use in GLSL shader code stuff
+        const vertPosition = this.glCTX.getAttribLocation(this.shaderProgram, 'coordinates');
+        this.glCTX.vertexAttribPointer(vertPosition, 2,this.glCTX.FLOAT, false, 0, 0);
+        this.glCTX.enableVertexAttribArray(vertPosition);
+
         console.debug("[Render]","CONSTRUCTOR",this.width,this.height,this.vertexShader,this.fragmentShader);
     }
 };
