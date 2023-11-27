@@ -34,12 +34,29 @@ client.joinOrCreate(ROOM_NAME).then(room_instance => {
     document.addEventListener("keydown", e => keyEvent(e));
     document.addEventListener("keyup", e => keyEvent(e));
 
-    window.setInterval(function () {
-        processInputs();
-        drawDisplay(room.state);
-    }, 1000 / FPS);
+    window.requestAnimationFrame((time) => {
+        animationLoop(time, room.state,0);
+    });
 });
 
+function animationLoop(timeExec,state,timeLastExec) {
+    console.group('[AnimLoop]');
+    console.debug(`${Number(timeExec-timeLastExec).toFixed(2)}ms/${Number(1000/FPS).toFixed(2)}ms`)
+    if (timeExec - timeLastExec >= 1000 / FPS){
+        console.debug('Frame Update Required')
+        console.groupEnd();
+
+        processInputs();
+        drawDisplay(state,timeExec-timeLastExec);
+
+        requestAnimationFrame((timeAnim) => animationLoop(timeAnim,state,timeExec));
+    } else {
+        console.debug('No Update Required (FPS)')
+        console.groupEnd();
+        
+        requestAnimationFrame((timeAnim) => animationLoop(timeAnim,state,timeLastExec));
+    }
+}
 
 const keyspressed = {};
 
@@ -63,10 +80,11 @@ function processInputs() {
     }
 }
 
-function drawDisplay(state) {
+function drawDisplay(state,timeDelta) {
     // background
     const bkg_ctx = zc.getContext(0, 'webgl');
-    render.update();
+    console.debug("[Draw]",`${Number(timeDelta).toFixed(2)}ms`)
+    render.update(timeDelta);
 
     // players
     const player_ctx = zc.getContext(1, '2d');

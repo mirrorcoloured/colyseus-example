@@ -47,7 +47,7 @@ export class Renderer {
       return program;
     }
 
-    update() {
+    update(timeDelta) {
         console.debug("[Render]","DRAW BEGIN");
 
         const shaderProgram = this.buildProgram(this.glCTX,this.vertexShader,this.fragmentShader)
@@ -87,7 +87,7 @@ export class Renderer {
 
         // Clear the canvas
         console.debug("[Render]","CLEAR");
-        this.glCTX.clearColor(0/255, 153/255, 102/255, 1.0);
+        this.glCTX.clearColor(64/255, 64/255, 64/255, 1.0);
         this.glCTX.clear(this.glCTX.COLOR_BUFFER_BIT);
 
         // Draw Triangle
