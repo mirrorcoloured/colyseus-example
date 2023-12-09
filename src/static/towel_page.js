@@ -1,5 +1,6 @@
 import { ZCanvas } from "./ZCanvas.js";
 import { Renderer } from "./renderer.js";
+import { Player } from "../shared/Player.ts";
 
 const FPS = 60;
 const FRAME_WIDTH = 1200;
