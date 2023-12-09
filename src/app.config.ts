@@ -65,8 +65,14 @@ export default config({
     },
 
     initializeExpress: (app) => {
+        app.use(function (req, res, next) {
+            const client_ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress 
+            console.log(`${client_ip} ${req.method} ${req.url}`);
+            next();
+        })
+
         app.get('/', (req, res) => {
-            res.sendFile(path.join(__dirname, "Static", 'towel_page.html'));
+            res.sendFile(path.join(__dirname, "static", 'towel_page.html'));
         });
 
         app.use('/static', serveIndex(path.join(__dirname, "static"), {'icons': true}))
