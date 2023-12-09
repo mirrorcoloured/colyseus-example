@@ -18,8 +18,8 @@ export class State extends Schema {
     movePlayer (sessionId: string, movement: any) {
         if (movement.x) {
             this.players.get(sessionId).x += movement.x * 10;
-
-        } else if (movement.y) {
+        }
+        if (movement.y) {
             this.players.get(sessionId).y += movement.y * 10;
         }
     }

@@ -71,14 +71,26 @@ function keyEvent(e) {
 }
 
 function processInputs() {
+    let x = 0;
+    let y = 0;
     if (keyspressed['ArrowUp'] || keyspressed['w']) {
-        room.send("move", { y: -1 });
-    } else if (keyspressed['ArrowRight'] || keyspressed['d']) {
-        room.send("move", { x: 1 });
-    } else if (keyspressed['ArrowDown'] || keyspressed['s']) {
-        room.send("move", { y: 1 })
-    } else if (keyspressed['ArrowLeft'] || keyspressed['a']) {
-        room.send("move", { x: -1 })
+        y += -1;
+    }
+    if (keyspressed['ArrowRight'] || keyspressed['d']) {
+        x += 1;
+    }
+    if (keyspressed['ArrowDown'] || keyspressed['s']) {
+        y += 1;
+    }
+    if (keyspressed['ArrowLeft'] || keyspressed['a']) {
+        x += -1;
+    }
+    if (x || y) {
+        const total = Math.abs(x) + Math.abs(y);
+        room.send("move", {
+            x: x / Math.sqrt(total),
+            y: y / Math.sqrt(total),
+        })
     }
 }
 
