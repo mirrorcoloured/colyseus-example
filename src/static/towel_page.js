@@ -1,5 +1,6 @@
 import { ZCanvas } from "./ZCanvas.js";
 import { Renderer } from "./renderer.js";
+import { State } from "../shared/State.ts";
 import { Player } from "../shared/Player.ts";
 
 const FPS = 60;
