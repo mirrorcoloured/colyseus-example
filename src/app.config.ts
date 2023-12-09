@@ -71,6 +71,12 @@ export default config({
 
         app.use('/static', serveIndex(path.join(__dirname, "static"), {'icons': true}))
         app.use('/static', express.static(path.join(__dirname, "static")));
+        
+        app.use('/build', serveIndex(path.join(__dirname, "..", "build"), {'icons': true}))
+        app.use('/build', express.static(path.join(__dirname, "..", "build")));
+        
+        app.use('/dist', serveIndex(path.join(__dirname, "..", "dist"), {'icons': true}))
+        app.use('/dist', express.static(path.join(__dirname, "..", "dist")));
 
         // (optional) client playground
         app.use('/playground', playground);
