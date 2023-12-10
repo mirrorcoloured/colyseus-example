@@ -10,8 +10,18 @@ export class TowelRoom extends Room<State> {
         this.setState(new State());
 
         this.onMessage("move", (client, data) => {
-            console.log("StateHandlerRoom received message from", client.sessionId, ":", data);
+            console.log(`[${client.sessionId}] [move]:`, data);
             this.state.movePlayer(client.sessionId, data);
+        });
+
+        this.onMessage("click", (client, data) => {
+            console.log(`[${client.sessionId}] [click]:`, data);
+            this.state.clickPlayer(client.sessionId, data);
+        });
+
+        this.onMessage("aim", (client, data) => {
+            console.log(`[${client.sessionId}] [aim]:`, data);
+            this.state.aimPlayer(client.sessionId, data);
         });
     }
 

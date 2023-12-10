@@ -32,4 +32,14 @@ export class State extends Schema {
             this.players.get(sessionId).y = Math.min(Math.max(this.players.get(sessionId).y + movement.y * PLAYER_SPEED, this.bounds.minY), this.bounds.maxY);
         }
     }
+
+    aimPlayer (sessionId: string, aim: any) {
+        const player = this.players.get(sessionId);
+        const theta = Math.atan2(aim.y - player.y, aim.x - player.x);
+        player.angle = theta;
+    }
+
+    clickPlayer (sessionId: string, clickaction: any) {
+        this.players.get(sessionId)
+    }
 }

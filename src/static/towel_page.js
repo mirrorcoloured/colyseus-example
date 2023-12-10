@@ -1,5 +1,7 @@
 import { ZCanvas } from "./ZCanvas.js";
 import { Renderer } from "./renderer.js";
+import { hashCode } from "./helpers.js";
+
 import { State } from "../shared/State.ts";
 import { Player } from "../shared/Player.ts";
 import { Rect } from "../shared/Rect.ts";
@@ -18,8 +20,15 @@ function worldPosToScreenPos(pos) {
         y: pos.y * (FRAME_HEIGHT / world_height),
     }
 }
+function screenPosToWorldPos(pos) {
+    return {
+        x: pos.x / (FRAME_WIDTH / world_width),
+        y: pos.y / (FRAME_HEIGHT / world_height),
+    }
+}
 
-const zc = new ZCanvas(document.body, FRAME_WIDTH, FRAME_HEIGHT, FRAME_LAYERS);
+const DOM_ROOT = document.body;
+const zc = new ZCanvas(DOM_ROOT, FRAME_WIDTH, FRAME_HEIGHT, FRAME_LAYERS);
 const render = new Renderer(zc.getContext(0, 'webgl'));
 
 var host = window.document.location.host.replace(/:.*/, '');
@@ -48,8 +57,11 @@ client.joinOrCreate(ROOM_NAME).then(room_instance => {
         console.log(message);
     });
 
-    document.addEventListener("keydown", e => keyEvent(e));
-    document.addEventListener("keyup", e => keyEvent(e));
+    DOM_ROOT.addEventListener("keydown", e => keyEvent(e));
+    DOM_ROOT.addEventListener("keyup", e => keyEvent(e));
+    DOM_ROOT.addEventListener("mousemove", e => mouseMoveEvent(e));
+    DOM_ROOT.addEventListener("mousedown", e => clickEvent(e));
+    DOM_ROOT.addEventListener("mouseup", e => clickEvent(e));
 
     window.requestAnimationFrame((time) => {
         animationLoop(time, room.state,0);
@@ -109,6 +121,30 @@ function processInputs() {
     }
 }
 
+function mouseMoveEvent(e) {
+    const {x, y} = screenPosToWorldPos({x: e.clientX, y: e.clientY});
+    room.send("aim", {
+        x: x,
+        y: y,
+    })
+}
+
+function clickEvent(e) {
+    const {x, y} = screenPosToWorldPos({x: e.clientX, y: e.clientY});
+    const click_type = [
+        'left',
+        'middle',
+        'right',
+    ][e.button];
+    if (e.type === "mousedown") {
+        room.send("click", {
+            x: x,
+            y: y,
+            click_type: click_type,
+        })
+    }
+}
+
 function drawDisplay(state,timeDelta) {
     // background
     const bkg_ctx = zc.getContext(0, 'webgl');
@@ -132,13 +168,27 @@ function drawDisplay(state,timeDelta) {
 
 function drawPlayer(player_name, player_info, ctx) {
     const { x, y } = worldPosToScreenPos(player_info);
-    const er = worldPosToScreenPos({x: player_info.r, y: player_info.r});
-
+    
     // circle
-    ctx.fillStyle = "teal";
+    const ellipse_radius = worldPosToScreenPos({x: player_info.r, y: player_info.r});
+    const hsh = hashCode(player_name);
+    const r = ((hsh * 3) % 100) + 100;
+    const g = ((hsh * 5) % 100) + 100;
+    const b = ((hsh * 7) % 100) + 100;
+    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
     ctx.beginPath();
-    ctx.ellipse(x, y, er.x, er.y, 0, 0, 2 * Math.PI);
+    ctx.ellipse(x, y, ellipse_radius.x, ellipse_radius.y, 0, 0, 2 * Math.PI);
     ctx.fill();
+
+    // facing
+    const AIM_LENGTH = 20;
+    const ax = x + Math.cos(player_info.angle) * AIM_LENGTH;
+    const ay = y + Math.sin(player_info.angle) * AIM_LENGTH;
+    ctx.strokeStyle = "black";
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(ax, ay);
+    ctx.stroke();
     
     // label
     ctx.fillStyle = "black";
