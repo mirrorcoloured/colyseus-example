@@ -1,23 +1,34 @@
 # Examples
 
-On this repository you can find basic usage examples of how to use Colyseus along with the JavaScript client.
+It's gonna be a game!
 
-**Live demo**
-
-- [See live](https://examples.colyseus.dev/)
-- [See monitor panel](https://examples.colyseus.dev/)
-
-## How to run
+# Setup
 
 ```
-git clone https://github.com/colyseus/colyseus-examples.git
-cd colyseus-examples
+git clone https://github.com/mirrorcoloured/colyseus-example
+cd colyseus-example
 npm install
-npm start
 ```
+
+# Run
+To run main server
+`npm run start`
+
+To run webpack bundler
+`npm run build` or `npm run watch`
 
 Open [http://localhost:2567](http://localhost:2567) in your browser.
 
-## License
+# Todo
+* add life and startinglife to player
+* show my life on hud
+* add hitbox(circle) to player
+* use hitbox to check wall collisions
+* check for player collisions, subtract hp
+* make goblin entity (include summoner)
+* add castgoblin action
+* add goblin ai
+
+# License
 
 MIT
