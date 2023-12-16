@@ -4,8 +4,10 @@ import { Rect } from "./Rect";
 
 export const WORLD_WIDTH = 1000;
 export const WORLD_HEIGHT = 1000;
+
 export const PLAYER_RADIUS = 25;
-const PLAYER_SPEED = 10;
+export const PLAYER_SPEED = 10;
+export const PLAYER_STARTING_LIFE = 40;
 
 export class State extends Schema {
     @type({ map: Player })

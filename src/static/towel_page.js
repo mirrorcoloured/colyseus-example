@@ -31,6 +31,8 @@ const DOM_ROOT = document.body;
 const zc = new ZCanvas(DOM_ROOT, FRAME_WIDTH, FRAME_HEIGHT, FRAME_LAYERS);
 const render = new Renderer(zc.getContext(0, 'webgl'));
 
+let myPlayer = null;
+
 var host = window.document.location.host.replace(/:.*/, '');
 
 var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : ''));
@@ -52,11 +54,14 @@ client.joinOrCreate(ROOM_NAME).then(room_instance => {
         
     });
 
-
-    room.onMessage("hello", (message) => {
-        console.log(message);
+    room.onMessage("welcome", (myID) => {
+        console.log("I am", myID);
+        myPlayer = room.state.players[myID];
+        initGame();
     });
+});
 
+function initGame() {
     DOM_ROOT.addEventListener("keydown", e => keyEvent(e));
     DOM_ROOT.addEventListener("keyup", e => keyEvent(e));
     DOM_ROOT.addEventListener("mousemove", e => mouseMoveEvent(e));
@@ -66,7 +71,7 @@ client.joinOrCreate(ROOM_NAME).then(room_instance => {
     window.requestAnimationFrame((time) => {
         animationLoop(time, room.state,0);
     });
-});
+}
 
 function animationLoop(timeExec,state,timeLastExec) {
     console.group('[AnimLoop]');
@@ -164,6 +169,15 @@ function drawDisplay(state,timeDelta) {
     ui_ctx.fillStyle = "black";
     ui_ctx.rect(5, 5, 30, 10);
     ui_ctx.fill();
+
+    const life_value = myPlayer.life;
+    const life_pos = {x: FRAME_WIDTH / 2 - 20, y: 40};
+    ui_ctx.font = '40px Sans-serif';
+    ui_ctx.strokeStyle = 'black';
+    ui_ctx.lineWidth = 8;
+    ui_ctx.strokeText(life_value, life_pos.x, life_pos.y);
+    ui_ctx.fillStyle = 'white';
+    ui_ctx.fillText(life_value, life_pos.x, life_pos.y);
 }
 
 function drawPlayer(player_name, player_info, ctx) {

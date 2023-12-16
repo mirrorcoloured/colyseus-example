@@ -30,8 +30,8 @@ export class TowelRoom extends Room<State> {
     // }
 
     onJoin (client: Client) {
-        // client.send("hello", "world");
         console.log(client.sessionId, "joined!");
+        client.send("welcome", client.sessionId);
         this.state.createPlayer(client.sessionId);
     }
 
