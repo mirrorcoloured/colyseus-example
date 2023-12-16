@@ -166,10 +166,8 @@ function drawDisplay(state,timeDelta) {
     // ui
     const ui_ctx = zc.getContext(2, '2d');
     ui_ctx.clear();
-    ui_ctx.fillStyle = "black";
-    ui_ctx.rect(5, 5, 30, 10);
-    ui_ctx.fill();
 
+    // life value
     const life_value = myPlayer.life;
     const life_pos = {x: FRAME_WIDTH / 2 - 20, y: 40};
     ui_ctx.font = '40px Sans-serif';
@@ -193,6 +191,8 @@ function drawPlayer(player_name, player_info, ctx) {
     ctx.beginPath();
     ctx.ellipse(x, y, ellipse_radius.x, ellipse_radius.y, 0, 0, 2 * Math.PI);
     ctx.fill();
+    ctx.strokeStyle = "black";
+    ctx.stroke();
 
     // facing
     const AIM_LENGTH = 20;
@@ -205,7 +205,7 @@ function drawPlayer(player_name, player_info, ctx) {
     ctx.stroke();
     
     // label
-    ctx.fillStyle = "black";
+    ctx.fillStyle = "rgb(200,200,200)";
     ctx.font = "12px Arial";
     ctx.fillText(player_name, x - 30, y + 5);
 }
