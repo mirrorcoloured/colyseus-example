@@ -25,11 +25,12 @@ export class State extends Schema {
     }
 
     movePlayer (sessionId: string, movement: any) {
+        const player = this.players.get(sessionId);
         if (movement.x) {
-            this.players.get(sessionId).x = Math.min(Math.max(this.players.get(sessionId).x + movement.x * PLAYER_SPEED, this.bounds.minX), this.bounds.maxX);
+            player.x = Math.min(Math.max(player.x + movement.x * PLAYER_SPEED, this.bounds.minX + player.r), this.bounds.maxX - player.r);
         }
         if (movement.y) {
-            this.players.get(sessionId).y = Math.min(Math.max(this.players.get(sessionId).y + movement.y * PLAYER_SPEED, this.bounds.minY), this.bounds.maxY);
+            player.y = Math.min(Math.max(player.y + movement.y * PLAYER_SPEED, this.bounds.minY + player.r), this.bounds.maxY - player.r);
         }
     }
 
