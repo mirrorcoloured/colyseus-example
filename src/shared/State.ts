@@ -1,6 +1,8 @@
 import { Schema, type, MapSchema } from "@colyseus/schema";
 import { Player } from "./Player";
 import { Rect } from "./Rect";
+import { checkCollision, getCollisionPosition } from "./Collisions";
+import { Vec2D } from "./Base";
 
 export const WORLD_WIDTH = 1000;
 export const WORLD_HEIGHT = 1000;
@@ -28,17 +30,45 @@ export class State extends Schema {
 
     movePlayer (sessionId: string, movement: any) {
         const player = this.players.get(sessionId);
-        if (movement.x) {
-            player.x = Math.min(Math.max(player.x + movement.x * PLAYER_SPEED, this.bounds.minX + player.r), this.bounds.maxX - player.r);
+        const ds = new Vec2D(movement.x * PLAYER_SPEED, movement.y * PLAYER_SPEED);
+        let target_pos = player.hitbox.center.add(ds);
+        let valid_move = true;
+
+        if (target_pos.x < this.bounds.minX + player.hitbox.r) {
+            target_pos.x = this.bounds.minX + player.hitbox.r;
         }
-        if (movement.y) {
-            player.y = Math.min(Math.max(player.y + movement.y * PLAYER_SPEED, this.bounds.minY + player.r), this.bounds.maxY - player.r);
+        if (target_pos.x > this.bounds.maxX - player.hitbox.r) {
+            target_pos.x = this.bounds.maxX - player.hitbox.r;
+        }
+        if (target_pos.y < this.bounds.minY + player.hitbox.r) {
+            target_pos.y = this.bounds.minY + player.hitbox.r;
+        }
+        if (target_pos.y > this.bounds.maxY - player.hitbox.r) {
+            target_pos.y = this.bounds.maxY - player.hitbox.r;
+        }
+
+        this.players.forEach(function(other_player, other_id) {
+            if (sessionId != other_id) {
+                if (checkCollision(player.hitbox, other_player.hitbox)) {
+                    console.log('collide!');
+                    const pos = getCollisionPosition(player.hitbox, other_player.hitbox, target_pos);
+                    if (pos) {
+                        target_pos.x = pos.x;
+                        target_pos.y = pos.y;
+                    }
+                }
+            }
+        })
+
+        if (valid_move) {
+            player.hitbox.center.x = target_pos.x;
+            player.hitbox.center.y = target_pos.y;
         }
     }
 
     aimPlayer (sessionId: string, aim: any) {
         const player = this.players.get(sessionId);
-        const theta = Math.atan2(aim.y - player.y, aim.x - player.x);
+        const theta = Math.atan2(aim.y - player.hitbox.center.y, aim.x - player.hitbox.center.x);
         player.angle = theta;
     }
 

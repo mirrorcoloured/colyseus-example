@@ -178,34 +178,37 @@ function drawDisplay(state,timeDelta) {
     ui_ctx.fillText(life_value, life_pos.x, life_pos.y);
 }
 
-function drawPlayer(player_name, player_info, ctx) {
-    const { x, y } = worldPosToScreenPos(player_info);
+function drawPlayer(player_name, player, ctx) {
+    const screenPos = worldPosToScreenPos({
+        x: player.hitbox.center.x,
+        y: player.hitbox.center.y,
+    });
     
     // circle
-    const ellipse_radius = worldPosToScreenPos({x: player_info.r, y: player_info.r});
+    const ellipse_radius = worldPosToScreenPos({x: player.hitbox.r, y: player.hitbox.r});
     const hsh = hashCode(player_name);
     const r = ((hsh * 3) % 100) + 100;
     const g = ((hsh * 5) % 100) + 100;
     const b = ((hsh * 7) % 100) + 100;
     ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
     ctx.beginPath();
-    ctx.ellipse(x, y, ellipse_radius.x, ellipse_radius.y, 0, 0, 2 * Math.PI);
+    ctx.ellipse(screenPos.x, screenPos.y, ellipse_radius.x, ellipse_radius.y, 0, 0, 2 * Math.PI);
     ctx.fill();
     ctx.strokeStyle = "black";
     ctx.stroke();
 
     // facing
     const AIM_LENGTH = 20;
-    const ax = x + Math.cos(player_info.angle) * AIM_LENGTH;
-    const ay = y + Math.sin(player_info.angle) * AIM_LENGTH;
+    const ax = screenPos.x + Math.cos(player.angle) * AIM_LENGTH;
+    const ay = screenPos.y + Math.sin(player.angle) * AIM_LENGTH;
     ctx.strokeStyle = "black";
     ctx.beginPath();
-    ctx.moveTo(x, y);
+    ctx.moveTo(screenPos.x, screenPos.y);
     ctx.lineTo(ax, ay);
     ctx.stroke();
     
     // label
     ctx.fillStyle = "rgb(200,200,200)";
     ctx.font = "12px Arial";
-    ctx.fillText(player_name, x - 30, y + 5);
+    ctx.fillText(player_name, screenPos.x - 30, screenPos.y + 5);
 }

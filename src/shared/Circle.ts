@@ -1,19 +1,16 @@
-import { Schema, type } from "@colyseus/schema";
+import { type } from "@colyseus/schema";
+import { Shape, Vec2D } from "./Base";
 
-export class Circle extends Schema {
-    @type("number")
-    x: number;
-
-    @type("number")
-    y: number;
+export class Circle extends Shape {
+    @type(Vec2D)
+    center;
 
     @type("number")
     r: number;
 
     constructor(x: number, y: number, r: number) {
         super();
-        this.x = x;
-        this.y = y;
+        this.center = new Vec2D(x, y);
         this.r = r;
     }
 

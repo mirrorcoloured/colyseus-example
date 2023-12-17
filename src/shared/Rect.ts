@@ -1,6 +1,7 @@
-import { Schema, type } from "@colyseus/schema";
+import { type } from "@colyseus/schema";
+import { Vec2D, Shape } from "./Base";
 
-export class Rect extends Schema {
+export class Rect extends Shape {
     @type("number")
     minX: number;
 
@@ -21,14 +22,6 @@ export class Rect extends Schema {
         this.maxY = maxY;
     }
 
-    get x () {
-        return this.minX + this.width / 2;
-    }
-
-    get y () {
-        return this.minY + this.height / 2;
-    }
-
     get width () {
         return this.maxX - this.minX;
     }
@@ -39,5 +32,9 @@ export class Rect extends Schema {
 
     get area () {
         return this.width * this.height;
+    }
+
+    get center () {
+        return new Vec2D(this.minX + this.width / 2, this.minY + this.height / 2);
     }
 }
