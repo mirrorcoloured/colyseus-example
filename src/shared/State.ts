@@ -1,16 +1,12 @@
 import { Schema, type, MapSchema, ArraySchema } from "@colyseus/schema";
 import { Player } from "./Player";
 import { Rect } from "./Rect";
-import { checkCollision, getCollisionPosition } from "./Collisions";
 import { Vec2D } from "./Base";
 import { Entity } from "./Entity";
+import { Summon } from "./Summon";
 
 export const WORLD_WIDTH = 1000;
 export const WORLD_HEIGHT = 1000;
-
-export const PLAYER_RADIUS = 25;
-export const PLAYER_SPEED = 10;
-export const PLAYER_STARTING_LIFE = 40;
 
 export class State extends Schema {
     @type({ array: Entity })
@@ -27,56 +23,39 @@ export class State extends Schema {
     createPlayer(sessionId: string) {
         const player = new Player(
             Math.floor(Math.random() * WORLD_WIDTH),
-            Math.floor(Math.random() * WORLD_HEIGHT),
-            PLAYER_RADIUS
+            Math.floor(Math.random() * WORLD_HEIGHT)
         );
         player.id = sessionId;
         this.players.set(sessionId, player);
         this.entities.push(player);
     }
 
+    createSummon(creator: string) {
+        const summon = new Summon(
+            Math.floor(Math.random() * WORLD_WIDTH),
+            Math.floor(Math.random() * WORLD_HEIGHT),
+            creator
+        );
+        this.entities.push(summon);
+    }
+
     removePlayer(sessionId: string) {
         this.players.delete(sessionId);
-        const index = this.entities.findIndex(entity => entity.id == sessionId)
+        const index = this.entities.findIndex(entity => entity.id == sessionId);
         this.entities.splice(index, 1);
     }
 
-    movePlayer (sessionId: string, movement: any) {
+    removeSummon(id: string) {
+        const index = this.entities.findIndex(entity => entity.id == id);
+        this.entities.splice(index, 1);
+    }
+
+    queuePlayerMove (sessionId: string, movement: any) {
         const player = this.players.get(sessionId);
-        const ds = new Vec2D(movement.x * PLAYER_SPEED, movement.y * PLAYER_SPEED);
+        const ds = new Vec2D(movement.x * player.speed, movement.y * player.speed);
         let target_pos = player.hitbox.center.add(ds);
-        let valid_move = true;
-
-        if (target_pos.x < this.bounds.minX + player.hitbox.r) {
-            target_pos.x = this.bounds.minX + player.hitbox.r;
-        }
-        if (target_pos.x > this.bounds.maxX - player.hitbox.r) {
-            target_pos.x = this.bounds.maxX - player.hitbox.r;
-        }
-        if (target_pos.y < this.bounds.minY + player.hitbox.r) {
-            target_pos.y = this.bounds.minY + player.hitbox.r;
-        }
-        if (target_pos.y > this.bounds.maxY - player.hitbox.r) {
-            target_pos.y = this.bounds.maxY - player.hitbox.r;
-        }
-
-        this.players.forEach(function(other_player, other_id) {
-            if (sessionId != other_id) {
-                if (checkCollision(player.hitbox, other_player.hitbox)) {
-                    console.log('collide!');
-                    const pos = getCollisionPosition(player.hitbox, other_player.hitbox, target_pos);
-                    if (pos) {
-                        target_pos.x = pos.x;
-                        target_pos.y = pos.y;
-                    }
-                }
-            }
-        })
-
-        if (valid_move) {
-            player.hitbox.center.x = target_pos.x;
-            player.hitbox.center.y = target_pos.y;
-        }
+        player.target_pos.x = target_pos.x;
+        player.target_pos.y = target_pos.y;
     }
 
     aimPlayer (sessionId: string, aim: any) {

@@ -12,8 +12,12 @@ export function checkCollision(A: Shape, B: Shape): boolean {
 export function getCollisionPosition(A: Shape, B: Shape, A_target: Vec2D): Vec2D|null {
     if (A instanceof Circle && B instanceof Circle) {
 
+        const original_distance = A.center.distanceTo(B.center);
         const travel_distance = A.center.distanceTo(A_target);
+        const proposed_distance = A_target.distanceTo(B.center);
+
         
+
         return A_target;
         return null;
     }

@@ -159,8 +159,12 @@ function drawDisplay(state,timeDelta) {
     // players
     const player_ctx = zc.getContext(1, '2d');
     player_ctx.clear();
-    state.players.forEach((player_info, player_name) => {
-        drawPlayer(player_name, player_info, player_ctx);
+    state.entities.forEach((entity, index) => {
+        if (entity.entityType == "Player") {
+            drawPlayer(entity.id, entity, player_ctx);
+        } else if (entity.entityType == "Summon") {
+            drawSummon(entity, player_ctx);
+        } 
     });
 
     // ui
@@ -211,4 +215,20 @@ function drawPlayer(player_name, player, ctx) {
     ctx.fillStyle = "rgb(200,200,200)";
     ctx.font = "12px Arial";
     ctx.fillText(player_name, screenPos.x - 30, screenPos.y + 5);
+}
+
+function drawSummon(entity, ctx) {
+    const screenPos = worldPosToScreenPos({
+        x: entity.hitbox.center.x,
+        y: entity.hitbox.center.y,
+    });
+    
+    // circle
+    const ellipse_radius = worldPosToScreenPos({x: entity.hitbox.r, y: entity.hitbox.r});
+    ctx.fillStyle = `rgb(230, 50, 20)`;
+    ctx.beginPath();
+    ctx.ellipse(screenPos.x, screenPos.y, ellipse_radius.x, ellipse_radius.y, 0, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.strokeStyle = "black";
+    ctx.stroke();
 }
