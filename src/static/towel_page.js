@@ -7,7 +7,7 @@ const FRAME_HEIGHT = 800;
 const FRAME_LAYERS = 3;
 
 const zc = new ZCanvas(document.body, FRAME_WIDTH, FRAME_HEIGHT, FRAME_LAYERS);
-const render = new Renderer(zc.getContext(0, 'webgl'))
+const render = new Renderer(zc.getContext(0, 'webgl'),FPS)
 
 var host = window.document.location.host.replace(/:.*/, '');
 
@@ -51,7 +51,7 @@ function animationLoop(timeExec,state,timeLastExec) {
 
         requestAnimationFrame((timeAnim) => animationLoop(timeAnim,state,timeExec));
     } else {
-        console.debug('No Update Required (FPS)')
+        console.debug('No Update Required (Framerate)')
         console.groupEnd();
 
         requestAnimationFrame((timeAnim) => animationLoop(timeAnim,state,timeLastExec));
