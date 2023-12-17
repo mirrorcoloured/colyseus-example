@@ -21,7 +21,11 @@ export class State extends Schema {
     something = "This attribute won't be sent to the client-side";
 
     createPlayer(sessionId: string) {
-        this.players.set(sessionId, new Player());
+        this.players.set(sessionId, new Player(
+            Math.floor(Math.random() * WORLD_WIDTH),
+            Math.floor(Math.random() * WORLD_HEIGHT),
+            PLAYER_RADIUS
+        ));
     }
 
     removePlayer(sessionId: string) {
