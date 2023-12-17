@@ -127,7 +127,7 @@ function processInputs() {
 }
 
 function mouseMoveEvent(e) {
-    const {x, y} = screenPosToWorldPos({x: e.clientX, y: e.clientY});
+    const {x, y} = screenPosToWorldPos({x: e.offsetX, y: e.offsetY});
     room.send("aim", {
         x: x,
         y: y,
@@ -135,7 +135,7 @@ function mouseMoveEvent(e) {
 }
 
 function clickEvent(e) {
-    const {x, y} = screenPosToWorldPos({x: e.clientX, y: e.clientY});
+    const {x, y} = screenPosToWorldPos({x: e.offsetX, y: e.offsetY});
     const click_type = [
         'left',
         'middle',
