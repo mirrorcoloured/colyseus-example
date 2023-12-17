@@ -29,7 +29,7 @@ function screenPosToWorldPos(pos) {
 
 const DOM_ROOT = document.body;
 const zc = new ZCanvas(DOM_ROOT, FRAME_WIDTH, FRAME_HEIGHT, FRAME_LAYERS);
-const render = new Renderer(zc.getContext(0, 'webgl'));
+const render = new Renderer(zc.getContext(0, 'webgl'),FPS)
 
 let myPlayer = null;
 
@@ -85,7 +85,7 @@ function animationLoop(timeExec,state,timeLastExec) {
 
         requestAnimationFrame((timeAnim) => animationLoop(timeAnim,state,timeExec));
     } else {
-        console.debug('No Update Required (FPS)')
+        console.debug('No Update Required (Framerate)')
         console.groupEnd();
 
         requestAnimationFrame((timeAnim) => animationLoop(timeAnim,state,timeLastExec));
