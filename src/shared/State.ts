@@ -1,8 +1,9 @@
-import { Schema, type, MapSchema } from "@colyseus/schema";
+import { Schema, type, MapSchema, ArraySchema } from "@colyseus/schema";
 import { Player } from "./Player";
 import { Rect } from "./Rect";
 import { checkCollision, getCollisionPosition } from "./Collisions";
 import { Vec2D } from "./Base";
+import { Entity } from "./Entity";
 
 export const WORLD_WIDTH = 1000;
 export const WORLD_HEIGHT = 1000;
@@ -12,6 +13,9 @@ export const PLAYER_SPEED = 10;
 export const PLAYER_STARTING_LIFE = 40;
 
 export class State extends Schema {
+    @type({ array: Entity })
+    entities = new ArraySchema<Entity>;
+
     @type({ map: Player })
     players = new MapSchema<Player>();
 
@@ -21,15 +25,20 @@ export class State extends Schema {
     something = "This attribute won't be sent to the client-side";
 
     createPlayer(sessionId: string) {
-        this.players.set(sessionId, new Player(
+        const player = new Player(
             Math.floor(Math.random() * WORLD_WIDTH),
             Math.floor(Math.random() * WORLD_HEIGHT),
             PLAYER_RADIUS
-        ));
+        );
+        player.id = sessionId;
+        this.players.set(sessionId, player);
+        this.entities.push(player);
     }
 
     removePlayer(sessionId: string) {
         this.players.delete(sessionId);
+        const index = this.entities.findIndex(entity => entity.id == sessionId)
+        this.entities.splice(index, 1);
     }
 
     movePlayer (sessionId: string, movement: any) {
@@ -77,6 +86,7 @@ export class State extends Schema {
     }
 
     clickPlayer (sessionId: string, clickaction: any) {
-        this.players.get(sessionId)
+        const player = this.players.get(sessionId);
+
     }
 }
